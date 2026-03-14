@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+venv/
+.env/
+
+# FAISS index
+vector_index.faiss
+documents.pkl
+
+# Uploaded files
+uploads/
+
+# OS junk
+.DS_Store
+Thumbs.db

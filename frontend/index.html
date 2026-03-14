@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Knowledge Assistant</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 flex flex-col items-center h-screen">
+
+<h1 class="text-3xl font-bold mt-6 mb-4">
+AI Knowledge Assistant
+</h1>
+
+<div class="mb-4 flex gap-2">
+    
+    <input type="file" id="fileInput" class="border p-2 rounded">
+
+    <button onclick="uploadDocument()" 
+    class="bg-green-500 text-white px-4 py-2 rounded">
+        Upload Document
+    </button>
+
+</div>
+
+<div id="chatBox" class="w-[700px] h-[500px] bg-white shadow rounded p-4 overflow-y-auto mb-4">
+</div>
+
+<div class="flex w-[700px]">
+
+<input
+id="questionInput"
+type="text"
+placeholder="Ask something about the document..."
+class="flex-1 border rounded-l p-3"
+/>
+
+<button
+onclick="askQuestion()"
+class="bg-blue-600 text-white px-6 rounded-r"
+>
+Ask
+</button>
+
+</div>
+
+<script>
+
+async function uploadDocument() {
+
+    const fileInput = document.getElementById("fileInput");
+
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a file");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/upload_document",
+        {
+            method: "POST",
+            body: formData
+        }
+    );
+
+    const data = await response.json();
+
+    alert(data.message);
+}
+
+async function askQuestion() {
+
+    const input = document.getElementById("questionInput");
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+    // User message
+    chatBox.innerHTML += `
+        <div class="flex justify-end mb-3">
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg max-w-[70%]">
+                ${question}
+            </div>
+        </div>
+    `;
+
+    input.value = "";
+
+    // Loading message
+    const loading = document.createElement("div");
+    loading.id = "loading";
+    loading.className = "text-gray-500 italic mb-3";
+    loading.innerText = "AI is thinking...";
+    chatBox.appendChild(loading);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+
+        const response = await fetch("http://127.0.0.1:8000/ask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                question: question
+            })
+        });
+
+        const data = await response.json();
+
+        // Remove loading message
+        loading.remove();
+
+        // AI response
+        chatBox.innerHTML += `
+            <div class="flex justify-start mb-3">
+                <div class="bg-gray-200 px-4 py-2 rounded-lg max-w-[70%]">
+                    ${data.answer}
+                    <div class="text-xs text-gray-600 mt-1">
+                        Source: ${data.sources.join(", ")}
+                    </div>
+                </div>
+            </div>
+        `;
+
+    } catch (error) {
+
+        loading.remove();
+
+        chatBox.innerHTML += `
+            <div class="text-red-500 mb-3">
+                Error contacting AI backend.
+            </div>
+        `;
+
+        console.error(error);
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+
+// Enter key support
+document.getElementById("questionInput")
+.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        askQuestion();
+    }
+});
+
+</script>
+
+</body>
+</html>
