@@ -1,137 +1,133 @@
 # AI Knowledge Assistant for Company Documents
 
-This project is a Retrieval-Augmented Generation (RAG) system that allows users to upload PDF documents and ask questions about them using an AI assistant.
+A document-grounded question-answering application that lets users upload PDF documents, retrieve relevant information semantically, and generate answers using a local language model.
 
-The system processes uploaded documents, converts them into embeddings, stores them in a FAISS vector database, and retrieves relevant information to generate answers using a local LLM.
+## Problem
 
----
+Finding specific information inside multiple company documents can be slow and error-prone. This project implements a RAG-style workflow that combines semantic retrieval with local LLM generation.
+
+## Architecture
+
+```text
+PDF Documents
+      ↓
+Document Processing
+      ↓
+Embedding Generation
+      ↓
+FAISS Vector Database
+      ↓
+Semantic Retrieval
+      ↓
+Relevant Context
+      ↓
+Local LLM (Ollama)
+      ↓
+Answer + Source
+```
 
 ## Features
 
-* Upload company documents (PDF)
-* Automatic document processing and indexing
-* Semantic search using FAISS
-* Local LLM inference using Ollama
-* Multi-document question answering
-* Source citation for answers
-* Simple chat interface
-
----
+- PDF document upload
+- Automatic document processing and indexing
+- Semantic search with FAISS
+- Sentence Transformer embeddings
+- Local LLM inference with Ollama
+- Multi-document question answering
+- Source citation in responses
+- Simple browser-based chat interface
 
 ## Tech Stack
 
-Backend
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI |
+| Language | Python |
+| Embeddings | Sentence Transformers |
+| Vector database | FAISS |
+| LLM runtime | Ollama |
+| Metadata database | MySQL |
+| Frontend | HTML, TailwindCSS, JavaScript |
 
-* Python
-* FastAPI
-* FAISS
-* Sentence Transformers
-* Ollama (Local LLM)
+## Project Structure
 
-Frontend
-
-* HTML
-* TailwindCSS
-* JavaScript
-
-Database
-
-* MySQL (for document metadata)
-
----
-
-## Project Architecture
-
-User Question
-↓
-Embedding Generation
-↓
-Vector Search (FAISS)
-↓
-Relevant Document Chunks Retrieved
-↓
-Local LLM Generates Answer
-↓
-Answer + Source Returned to UI
-
----
-
-## Installation
-
-Clone the repository
-
+```text
+ai-knowledge-assistant/
+├── backend/
+│   ├── app/
+│   └── requirements.txt
+├── frontend/
+│   └── index.html
+└── README.md
 ```
+
+## Run Locally
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/SubhamDey2004-coder/ai-knowledge-assistant.git
 cd ai-knowledge-assistant
 ```
 
-Create virtual environment
+### 2. Create an environment
 
-```
+```bash
 python -m venv venv
+```
+
+Windows:
+
+```powershell
 venv\Scripts\activate
 ```
 
-Install dependencies
+### 3. Install dependencies
 
-```
+```bash
 pip install -r backend/requirements.txt
 ```
 
----
+### 4. Start the backend
 
-## Run Backend
-
-```
+```bash
 cd backend
 uvicorn app.main:app --reload
 ```
 
-Backend will start at
+### 5. Open the frontend
 
-```
-http://127.0.0.1:8000
-```
+Open `frontend/index.html` in a browser.
 
----
+## Example Use Cases
 
-## Run Frontend
+The assistant can be used for questions such as:
 
-Open the file
+- What are the workplace safety rules?
+- What protective equipment is required?
+- What does the uploaded policy say about a particular process?
 
-```
-frontend/index.html
-```
+## Engineering Focus
 
-in your browser.
+This project demonstrates a complete retrieval-to-generation workflow:
 
----
-
-## Usage
-
-1. Upload a PDF document.
-2. Ask questions about the document.
-3. The AI retrieves relevant context and generates an answer.
-4. The source document is displayed with the response.
-
----
-
-## Example Questions
-
-```
-What is the internship domain?
-What are the workplace safety rules?
-What protective equipment must employees wear?
-```
-
----
+- Document ingestion
+- Embedding generation
+- Vector similarity search
+- Context retrieval
+- Local LLM generation
+- Source-aware responses
+- FastAPI backend integration
 
 ## Future Improvements
 
-* Authentication system
-* Streaming responses
-* Conversation memory
-* Document filtering
-* Cloud deployment
+- Authentication
+- Conversation memory
+- Streaming responses
+- Metadata filtering
+- Evaluation of retrieval quality and answer faithfulness
+- Cloud deployment
 
----
+## Author
+
+**Subham Dey**
