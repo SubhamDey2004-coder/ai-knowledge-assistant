@@ -1,68 +1,56 @@
-import faiss
-import numpy as np
 import os
 import pickle
 
-dimension = 384
+import faiss
+import numpy as np
 
-INDEX_PATH = "vector_index.faiss"
-DOC_PATH = "documents.pkl"
 
-# FAISS index
-index = faiss.IndexFlatL2(dimension)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+INDEX_PATH = os.path.join(BASE_DIR, "vector_index.faiss")
+DOC_PATH = os.path.join(BASE_DIR, "documents.pkl")
 
-# Each item will store:
-# { "text": chunk_text, "source": filename }
+EMBEDDING_DIMENSION = 384
+
+index = faiss.IndexFlatL2(EMBEDDING_DIMENSION)
 documents = []
 
 
 def add_embedding(embedding, text, source):
-
-    vector = np.array([embedding]).astype("float32")
-
+    vector = np.asarray([embedding], dtype="float32")
     index.add(vector)
-
-    documents.append({
-        "text": text,
-        "source": source
-    })
-
+    documents.append({"text": text, "source": source})
     save_index()
 
 
 def search_similar(query_embedding, k=3):
-
-    if len(documents) == 0:
+    if not documents:
         return []
 
-    vector = np.array([query_embedding]).astype("float32")
+    vector = np.asarray([query_embedding], dtype="float32")
+    k = min(k, len(documents))
+    _, indices = index.search(vector, k)
 
-    distances, indices = index.search(vector, k)
-
-    results = []
-
-    for i in indices[0]:
-        if i != -1 and i < len(documents):
-            results.append(documents[i])
-
-    return results
+    return [
+        documents[i]
+        for i in indices[0]
+        if i != -1 and i < len(documents)
+    ]
 
 
 def save_index():
-
     faiss.write_index(index, INDEX_PATH)
 
-    with open(DOC_PATH, "wb") as f:
-        pickle.dump(documents, f)
+    with open(DOC_PATH, "wb") as file:
+        pickle.dump(documents, file)
 
 
 def load_index():
-
     global index, documents
 
-    if os.path.exists(INDEX_PATH) and os.path.exists(DOC_PATH):
+    if not (os.path.exists(INDEX_PATH) and os.path.exists(DOC_PATH)):
+        return
 
-        index = faiss.read_index(INDEX_PATH)
+    index = faiss.read_index(INDEX_PATH)
 
-        with open(DOC_PATH, "rb") as f:
-            documents = pickle.load(f)
+    with open(DOC_PATH, "rb") as file:
+        documents = pickle.load(file)
